@@ -14,6 +14,8 @@ TAG_EED = 0x4E # Extended event descriptor
 TAG_CD  = 0x54 # Content descriptor
 TAG_SD  = 0x48 # Service descriptor
 
+ACCEPT_SERVICE_TYPE = (0x01, 0x02, 0xA1, 0xA2)
+
 CONTENT_TYPE = {
         0x0:('ニュース／報道',
             {

@@ -402,7 +402,7 @@ def parse_sdt(b_type, tsfile, debug):
         for service in t_packet.sdt.services:
             if (service.EIT_schedule_flag == 1 and
                     service.EIT_present_following_flag == 1 and
-                    service.descriptors[0].service_type == 0x01):
+                    service.descriptors[0].service_type in ACCEPT_SERVICE_TYPE:
                 service_map[service.service_id] = service.descriptors[0].service_name
         if b_type == TYPE_DIGITAL:
             break
