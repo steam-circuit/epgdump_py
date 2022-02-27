@@ -1,9 +1,8 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 READ_PACKETS_MAX = 700000
 
-TYPE_DEGITAL = ''
+TYPE_DIGITAL = ''
 TYPE_BS = 'BS_'
 TYPE_CS = 'CS_'
 
@@ -17,7 +16,7 @@ TAG_SD  = 0x48 # Service descriptor
 
 CONTENT_TYPE = {
         0x0:('ニュース／報道',
-            { 
+            {
                 0x0:'定時・総合',
                 0x1:'天気',
                 0x2:'特集・ドキュメント',
@@ -167,7 +166,6 @@ CONTENT_TYPE = {
             {
             }),
         }
-
 
 CRC_32_MPEG = (
     0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9,

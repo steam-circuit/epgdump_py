@@ -1,15 +1,21 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import sys
+import io
+import array
 import datetime
 import copy
-import array
-import aribstr
+from functools import cmp_to_key
+
 from constant import *
 from aribtable import *
+from aribstr import AribString
 
-class TransportStreamFile(file):
-    def next(self):
+
+class TransportStreamFile(io.FileIO):
+    def __iter__(self):
+        return self
+    def __next__(self):
         try:
             sync = self.read(1)
             while ord(sync) != 0x47:
@@ -33,13 +39,13 @@ class TransportPacketParser:
         self.count = 0
     def __iter__(self):
         return self
-    def next(self):
+    def __next__(self):
         while True:
             try:
                 return self.queue.pop(0)
             except IndexError:
                 pass
-            b_packet = self.tsfile.next()
+            b_packet = self.tsfile.__next__()
             self.count += 1
             if not self.debug:
                 if self.count >= READ_PACKETS_MAX:
@@ -54,8 +60,8 @@ class TransportPacketParser:
                         try:
                             t_packet = TransportPacket(header, section.data)
                             self.queue.append(t_packet)
-                        except CRC32MpegError, e:
-                            print >> sys.stderr, 'CRC32MpegError', e
+                        except CRC32MpegError as e:
+                            print('CRC32MpegError', e, file=sys.stderr)
                             self.section_map.pop(header.pid)
                             break
 
@@ -178,11 +184,11 @@ def parseShortEventDescriptor(idx, event, t_packet, b_packet):
             chr(b_packet[idx + 3]) +
             chr(b_packet[idx + 4]))       # 24 bslbf
     event_name_length = b_packet[idx + 5] # 8 uimsbf
-    arib = aribstr.AribString(b_packet[idx + 6:idx + 6 + event_name_length])
+    arib = AribString(b_packet[idx + 6:idx + 6 + event_name_length])
     (event_name,symbol) = arib.convert_utf_split()
     idx = idx + 6 + event_name_length
     text_length = b_packet[idx]           # 8 uimsbf
-    arib = aribstr.AribString(b_packet[idx + 1:idx + 1 + text_length])
+    arib = AribString(b_packet[idx + 1:idx + 1 + text_length])
     text = arib.convert_utf()
     text = symbol + "\n" + text
     desc = ShortEventDescriptor(descriptor_tag, descriptor_length,
@@ -213,7 +219,7 @@ def parseExtendedEventDescriptor(idx, event, t_packet, b_packet):
             item_length, item))
         idx = idx + 1 + item_length
     text_length = b_packet[idx] # 8 uimsbf
-    arib = aribstr.AribString(b_packet[idx + 1:idx + 1 + text_length])
+    arib = AribString(b_packet[idx + 1:idx + 1 + text_length])
     text = arib.convert_utf()
     desc = ExtendedEventDescriptor(descriptor_tag, descriptor_length,
             descriptor_number, last_descriptor_number, ISO_639_language_code,
@@ -249,11 +255,11 @@ def parseServiceDescriptor(idx, service, t_packet, b_packet):
     descriptor_length = b_packet[idx + 1] # 8 uimsbf
     service_type = b_packet[idx + 2]      # 8 uimsbf
     service_provider_name_length = b_packet[idx + 3] # 8 uimsbf
-    arib = aribstr.AribString(b_packet[idx + 4:idx + 4 + service_provider_name_length])
+    arib = AribString(b_packet[idx + 4:idx + 4 + service_provider_name_length])
     service_provider_name = arib.convert_utf()
     idx = idx + 4 + service_provider_name_length
     service_name_length = b_packet[idx]   # 8 uimsbf
-    arib = aribstr.AribString(b_packet[idx + 1:idx + 1 + service_name_length])
+    arib = AribString(b_packet[idx + 1:idx + 1 + service_name_length])
     service_name = arib.convert_utf()
     sd = ServiceDescriptor(descriptor_tag, descriptor_length, service_type,
             service_provider_name_length, service_provider_name,
@@ -311,7 +317,7 @@ def parseService(t_packet, b_packet):
 
 def add_event(b_type, event_map, t_packet):
     for event in t_packet.eit.events:
-        if b_type == TYPE_DEGITAL:
+        if b_type == TYPE_DIGITAL:
             m_id = event.event_id
         else:
             m_id = (event.transport_stream_id << 32) + (event.service_id << 16) + event.event_id
@@ -349,9 +355,9 @@ def fix_events(events):
                 else:
                     item_list.append(item)
             for item in item_list:
-                arib = aribstr.AribString(item.item_description)
+                arib = AribString(item.item_description)
                 item.item_description = arib.convert_utf()
-                arib = aribstr.AribString(item.item)
+                arib = AribString(item.item)
                 item.item = arib.convert_utf()
             for item in item_list:
                 item_map[item.item_description] = item.item
@@ -378,9 +384,12 @@ def parse_eit(b_type, service, tsfile, debug):
         if t_packet.eit.service_id in ids:
             parseEvents(t_packet, t_packet.binary_data)
             add_event(b_type, event_map, t_packet)
-    print >> sys.stderr, "EIT: %i packets read" % (parser.count)
-    event_list = event_map.values()
-    event_list.sort(compare_event if b_type == TYPE_DEGITAL else compare_service)
+    print("EIT: %i packets read" % (parser.count), file=sys.stderr)
+    event_list = list(event_map.values())
+    if b_type == TYPE_DIGITAL:
+        event_list = sorted(event_list, key=cmp_to_key(compare_event))
+    else:
+        event_list = sorted(event_list, key=cmp_to_key(compare_service))
     event_list = fix_events(event_list)
     return event_list
 
@@ -391,13 +400,13 @@ def parse_sdt(b_type, tsfile, debug):
     for t_packet in parser:
         parseService(t_packet, t_packet.binary_data)
         for service in t_packet.sdt.services:
-            if ( service.EIT_schedule_flag == 1 and
-                 service.EIT_present_following_flag == 1 and
-                 service.descriptors[0].service_type == 0x01):
+            if (service.EIT_schedule_flag == 1 and
+                    service.EIT_present_following_flag == 1 and
+                    service.descriptors[0].service_type == 0x01):
                 service_map[service.service_id] = service.descriptors[0].service_name
-        if b_type == TYPE_DEGITAL:
+        if b_type == TYPE_DIGITAL:
             break
-    print >> sys.stderr, "SDT: %i packets read" % (parser.count)
+    print("SDT: %i packets read" % (parser.count), file=sys.stderr)
     return service_map
 
 def parse_ts(b_type, tsfile, debug):

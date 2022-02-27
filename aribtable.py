@@ -1,7 +1,9 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from constant import *
+
 import array
+
+from constant import *
+
 
 class Section:
     def __init__(self, idx=5, length_prev=0):
@@ -27,7 +29,7 @@ class TransportPacket:
         else:
             self.eit = EventInfomationTable(packet)
     def __str__(self):
-        return ( 
+        return (
         'pid=%04X\n'
         'payload_unit_start_indicator=%i\n'
         'adaptation_field_control=%i\n'
