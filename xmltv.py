@@ -41,7 +41,7 @@ def create_channel(b_type, channel_name, service):
     el_list = []
     for (service_id, service_name) in service.items():
         ch = b_type + str(service_id) if channel_name == None else channel_name
-        attr = {'id':ch}
+        attr = {'name':ch}
         channel_el = ET.Element('channel', attr)
         attr = {'lang':'ja'}
 
