@@ -30,12 +30,13 @@ class TransportStreamFile(io.FileIO):
         return packet
 
 class TransportPacketParser:
-    def __init__(self, tsfile, pid, debug=False):
+    def __init__(self, tsfile, pid, max_packets, debug=False):
         self.tsfile = tsfile
         self.pid = pid
         self.section_map = {}
         self.queue = []
         self.debug = debug
+        self.max_packets = max_packets if max_packets else READ_PACKETS_MAX
         self.count = 0
     def __iter__(self):
         return self
@@ -48,7 +49,7 @@ class TransportPacketParser:
             b_packet = self.tsfile.__next__()
             self.count += 1
             if not self.debug:
-                if self.count >= READ_PACKETS_MAX:
+                if self.count >= self.max_packets:
                     raise StopIteration
             header = self.parse_header(b_packet)
             if header.pid in self.pid and header.adaptation_field_control == 1:
@@ -375,11 +376,11 @@ def compare_service(x, y):
     else:
         return service_id
 
-def parse_eit(b_type, service, tsfile, debug):
+def parse_eit(b_type, service, tsfile, max_packets, debug):
     # Event Information Table
     ids = service.keys()
     event_map = {}
-    parser = TransportPacketParser(tsfile, EIT_PID, debug)
+    parser = TransportPacketParser(tsfile, EIT_PID, max_packets, debug)
     for t_packet in parser:
         if t_packet.eit.service_id in ids:
             parseEvents(t_packet, t_packet.binary_data)
@@ -393,24 +394,24 @@ def parse_eit(b_type, service, tsfile, debug):
     event_list = fix_events(event_list)
     return event_list
 
-def parse_sdt(b_type, tsfile, debug):
+def parse_sdt(b_type, tsfile, max_packets, debug):
     # Service Description Table
     service_map = {}
-    parser = TransportPacketParser(tsfile, SDT_PID, debug)
+    parser = TransportPacketParser(tsfile, SDT_PID, max_packets, debug)
     for t_packet in parser:
         parseService(t_packet, t_packet.binary_data)
         for service in t_packet.sdt.services:
             if (service.EIT_schedule_flag == 1 and
                     service.EIT_present_following_flag == 1 and
-                    service.descriptors[0].service_type in ACCEPT_SERVICE_TYPE:
+                    service.descriptors[0].service_type in ACCEPT_SERVICE_TYPE):
                 service_map[service.service_id] = service.descriptors[0].service_name
         if b_type == TYPE_DIGITAL:
             break
     print("SDT: %i packets read" % (parser.count), file=sys.stderr)
     return service_map
 
-def parse_ts(b_type, tsfile, debug):
-    service = parse_sdt(b_type, tsfile, debug)
+def parse_ts(b_type, tsfile, max_packets, debug):
+    service = parse_sdt(b_type, tsfile, max_packets, debug)
     tsfile.seek(0)
-    events = parse_eit(b_type, service, tsfile, debug)
+    events = parse_eit(b_type, service, tsfile, max_packets, debug)
     return (service, events)

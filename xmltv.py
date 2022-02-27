@@ -15,12 +15,12 @@ def get_text(text):
     else:
         return ""
 
-def create_xml(b_type, channel_id, service, events, filename, pretty_print, output_eid):
-    channel_el_list = create_channel(b_type, channel_id, service)
-    programme_el_list = create_programme(channel_id, events, b_type, output_eid)
+def create_xml(b_type, channel_name, service, events, filename, pretty_print, output_eid):
+    channel_el_list = create_channel(b_type, channel_name, service)
+    programme_el_list = create_programme(channel_name, events, b_type, output_eid)
     attr = {
             'generator-info-name':'epgdump_py',
-            'generator-info-url':'mailto:epgdump_py@gmail.com'}
+            'generator-info-url':'http://localhost'}
     tv_el = ET.Element('tv', attr)
 
     for el in channel_el_list:
@@ -37,10 +37,10 @@ def create_xml(b_type, channel_id, service, events, filename, pretty_print, outp
         ET.ElementTree(tv_el).write(fd, 'utf-8', ' ')
     fd.close()
 
-def create_channel(b_type, channel_id, service):
+def create_channel(b_type, channel_name, service):
     el_list = []
     for (service_id, service_name) in service.items():
-        ch = b_type + str(service_id) if channel_id == None else channel_id
+        ch = b_type + str(service_id) if channel_name == None else channel_name
         attr = {'id':ch}
         channel_el = ET.Element('channel', attr)
         attr = {'lang':'ja'}
@@ -61,11 +61,11 @@ def create_channel(b_type, channel_id, service):
 
     return el_list
 
-def create_programme(channel_id, events, b_type, output_eid):
+def create_programme(channel_name, events, b_type, output_eid):
     t_format = '%Y%m%d%H%M%S +0900'
     el_list = []
     for event in events:
-        ch = b_type + str(event.service_id) if channel_id == None else channel_id
+        ch = b_type + str(event.service_id) if channel_name == None else channel_name
         start = event.start_time.strftime(t_format)
         stop = (event.start_time + event.duration).strftime(t_format)
         attr = {'start':start, 'stop':stop, 'channel':ch}

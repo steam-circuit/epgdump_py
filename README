@@ -1,11 +1,11 @@
 python epgdump.py
 
-USAGE: epgdump_py -c CHANNEL_ID -i INPUT_FILE -o OUTPUT_FILE
-  -h, --help        print help message
-  -c, --channel-id  specify channel identifier
-  -f, --format      format xml
-  -i, --input       specify ts file
-  -o, --output      specify xml file
+USAGE: epgdump.py -n CHANNEL_NAME -i INPUT_FILE -o OUTPUT_FILE
+  -h, --help          print help message
+  -n, --channel-name  specify DTB channel identifier (e.g. ON TV JAPAN code)
+  -f, --format        format xml
+  -i, --input         specify ts file
+  -o, --output        specify xml file
 
 --formatオプションを使用するよりも、xmlstarletコマンドを使用し
 た方がよい。

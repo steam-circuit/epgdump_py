@@ -12,29 +12,32 @@ from xmltv import *
 
 
 def usage():
-    print('''USAGE: epgdump_py -c CHANNEL_ID -i INPUT_FILE -o OUTPUT_FILE
-       epgdump_py -b -i INPUT_FILE -o OUTPUT_FILE
-       epgdump_py -s -i INPUT_FILE -o OUTPUT_FILE
-       epgdump_py [-b|-s] -p TRANSPORT_STREAM_ID:SERVICE_ID:EVENT_ID -i INPUT_FILE
-  -h, --help        print help message
-  -b, --bs          input file is BS channel
-  -s, --cs          input file is CS channel
-  -c, --channel-id  specify channel identifier
-  -d, --debug       parse all ts packet
-  -f, --format      format xml
-  -i, --input       specify ts file
-  -o, --output      specify xml file
-  -p, --print-time  print start time, and end time of specifeid id
-  -e, --event-id    output transport_stream_id, servece_id and event_id
+    print('''USAGE: epgdump.py -n CHANNEL_NAME -i INPUT_FILE -o OUTPUT_FILE
+       epgdump.py -b -i INPUT_FILE -o OUTPUT_FILE
+       epgdump.py -c -i INPUT_FILE -o OUTPUT_FILE
+       epgdump.py [-b|-c] -p TRANSPORT_STREAM_ID:SERVICE_ID:EVENT_ID -i INPUT_FILE
+  -h, --help          print help message
+  -b, --bs            input file is BS channel
+  -c, --cs            input file is CS channel
+  -n, --channel-name  specify DTB channel identifier (e.g. ON TV JAPAN code)
+  -d, --debug         parse all ts packet
+  -f, --format        format xml
+  -i, --input         specify ts file
+  -o, --output        specify xml file
+  -p, --print-time    print start time, and end time of specifeid id
+  -e, --event-id      output transport_stream_id, servece_id and event_id
+  -m, --max-packets   maximum ts packets of read
 ''', file=sys.stderr)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'hbsc:dfi:o:p:e', ['help', 'bs', 'cs', 'channel-id=', 'debug', 'format', 'input=', 'output=', 'print-time=', 'event-id'])
+    opts, args = getopt.getopt(sys.argv[1:], 'hbcn:dfi:o:p:em:', [
+        'help', 'bs', 'cs', 'channel-name=',
+        'debug', 'format', 'input=', 'output=', 'print-time=', 'event-id', 'max-packets'])
 except (IndexError, getopt.GetoptError):
     usage()
     sys.exit(1)
 
-channel_id = None
+channel_name = None
 input_file = None
 output_file = None
 pretty_print = False
@@ -44,16 +47,17 @@ transport_stream_id = None
 service_id = None
 event_id = None
 output_eid = False
+max_packets = None
 for o,a in opts:
     if o in ('-h', '--help'):
         usage()
         sys.exit(0)
     elif o in ('-b', '--bs'):
         b_type = TYPE_BS
-    elif o in ('-s', '--cs'):
+    elif o in ('-c', '--cs'):
         b_type = TYPE_CS
-    elif o in ('-c', '--channel-id'):
-        channel_id = a
+    elif o in ('-n', '--channel-name'):
+        channel_name = a
     elif o in ('-d', '--debug'):
         debug = True
     elif o in ('-f', '--format'):
@@ -69,9 +73,11 @@ for o,a in opts:
         event_id = int(arr[2])
     elif o in ('-e', '--event-id'):
         output_eid = True
+    elif o in ('-m', '--max-packets'):
+        max_packets = int(a)
 
 if service_id == None and (
-        (b_type == TYPE_DIGITAL and channel_id == None) or input_file == None or output_file == None):
+        (b_type == TYPE_DIGITAL and channel_name == None) or input_file == None or output_file == None):
     usage()
     sys.exit(1)
 elif input_file == None:
@@ -79,10 +85,10 @@ elif input_file == None:
     sys.exit(1)
 
 tsfile = TransportStreamFile(input_file, 'rb')
-(service, events) = parse_ts(b_type, tsfile, debug)
+(service, events) = parse_ts(b_type, tsfile, max_packets, debug)
 tsfile.close()
 if service_id == None:
-    create_xml(b_type, channel_id, service, events, output_file, pretty_print, output_eid)
+    create_xml(b_type, channel_name, service, events, output_file, pretty_print, output_eid)
 else:
     start_time = None
     end_time = None
