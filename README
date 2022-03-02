@@ -2,6 +2,8 @@ python epgdump.py
 
 USAGE: epgdump.py -n CHANNEL_NAME -i INPUT_FILE -o OUTPUT_FILE
   -h, --help          print help message
+  -b, --bs            input file is BS channel
+  -c, --cs            input file is CS channel
   -n, --channel-name  specify DTB channel identifier (e.g. ON TV JAPAN code)
   -f, --format        format xml
   -i, --input         specify ts file

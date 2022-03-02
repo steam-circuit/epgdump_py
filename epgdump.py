@@ -15,23 +15,25 @@ def usage():
     print('''USAGE: epgdump.py -n CHANNEL_NAME -i INPUT_FILE -o OUTPUT_FILE
        epgdump.py -b -i INPUT_FILE -o OUTPUT_FILE
        epgdump.py -c -i INPUT_FILE -o OUTPUT_FILE
-       epgdump.py [-b|-c] -p TRANSPORT_STREAM_ID:SERVICE_ID:EVENT_ID -i INPUT_FILE
+       epgdump.py -t -i INPUT_FILE -o OUTPUT_FILE
+       epgdump.py [-b|-c|-t] -p TRANSPORT_STREAM_ID:SERVICE_ID:EVENT_ID -i INPUT_FILE
   -h, --help          print help message
   -b, --bs            input file is BS channel
   -c, --cs            input file is CS channel
-  -n, --channel-name  specify DTB channel identifier (e.g. ON TV JAPAN code)
+  -t, --tb            input file is TB channel
+  -n, --channel-name  specify channel identifier (e.g. ON TV JAPAN code)
   -d, --debug         parse all ts packet
   -f, --format        format xml
   -i, --input         specify ts file
   -o, --output        specify xml file
-  -p, --print-time    print start time, and end time of specifeid id
+  -p, --print-time    print start time, and end time of specified id
   -e, --event-id      output transport_stream_id, servece_id and event_id
   -m, --max-packets   maximum ts packets of read
 ''', file=sys.stderr)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'hbcn:dfi:o:p:em:', [
-        'help', 'bs', 'cs', 'channel-name=',
+    opts, args = getopt.getopt(sys.argv[1:], 'hbctn:dfi:o:p:em:', [
+        'help', 'bs', 'cs', 'tb', 'channel-name=',
         'debug', 'format', 'input=', 'output=', 'print-time=', 'event-id', 'max-packets'])
 except (IndexError, getopt.GetoptError):
     usage()
@@ -56,6 +58,8 @@ for o,a in opts:
         b_type = TYPE_BS
     elif o in ('-c', '--cs'):
         b_type = TYPE_CS
+    elif o in ('-t', '--tb'):
+        b_type = TYPE_TB
     elif o in ('-n', '--channel-name'):
         channel_name = a
     elif o in ('-d', '--debug'):

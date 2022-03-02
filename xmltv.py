@@ -40,8 +40,10 @@ def create_xml(b_type, channel_name, service, events, filename, pretty_print, ou
 def create_channel(b_type, channel_name, service):
     el_list = []
     for (service_id, service_name) in service.items():
-        ch = b_type + str(service_id) if channel_name == None else channel_name
-        attr = {'name':ch}
+        channel_id = b_type + str(service_id)
+        attr = {'id':channel_id}
+        if channel_name != None:
+            attr['name'] = channel_name
         channel_el = ET.Element('channel', attr)
         attr = {'lang':'ja'}
 
@@ -50,11 +52,11 @@ def create_channel(b_type, channel_name, service):
         channel_el.append(display_el)
 
         display_el = ET.Element('display-name', attr)
-        display_el.text = ch
+        display_el.text = channel_id
         channel_el.append(display_el)
 
         display_el = ET.Element('display-name', attr)
-        display_el.text = ch + ' ' + get_text(service_name)
+        display_el.text = channel_id + ' ' + get_text(service_name)
         channel_el.append(display_el)
 
         el_list.append(channel_el)
