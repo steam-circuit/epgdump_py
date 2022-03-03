@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import xml.etree.ElementTree as ET
-import xml.dom.minidom
+import xml.dom.minidom as MD
 
 from constant import *
 
@@ -30,8 +30,8 @@ def create_xml(b_type, channel_id, service, events, filename, pretty_print, outp
 
     fd = open(filename, 'wb')
     if pretty_print:
-        xml_str = ET.ElementTree.tostring(tv_el)
-        xml_str = parseString(xml_str).toprettyxml(indent='  ', encoding='utf-8')
+        xml_str = ET.tostring(tv_el)
+        xml_str = MD.parseString(xml_str).toprettyxml(indent='  ', encoding='utf-8')
         fd.write(xml_str)
     else:
         ET.ElementTree(tv_el).write(fd, 'utf-8', ' ')
