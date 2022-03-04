@@ -23,7 +23,7 @@ def usage():
   -t, --tb            input file is TB channel
   -n, --channel-name  specify channel identifier (e.g. ON TV JAPAN code)
   -d, --debug         parse all ts packet
-  -f, --format        format xml
+  -f, --format        output formated xml with pprint (default: no space and no indent)
   -i, --input         specify ts file
   -o, --output        specify xml file
   -p, --print-time    print start time, and end time of specified id
