@@ -233,16 +233,10 @@ def parseContentDescriptor(idx, event, t_packet, b_packet):
     length = idx + descriptor_length
     content_list = []
     while idx < length:
-        content_nibble_level_1 = 'UNKNOWN'
-        content_nibble_level_2 = 'UNKNOWN'
-        try:
-            c_map = CONTENT_TYPE[(b_packet[idx] >> 4)]                # 4 uimsbf
-            content_nibble_level_1 = c_map[0]
-            content_nibble_level_2 = c_map[1][(b_packet[idx] & 0x0F)] # 4 uimsbf
-        except KeyError:
-            pass
-        user_nibble_1 = (b_packet[idx + 1] >> 4)          # 4 uimsbf
-        user_nibble_2 = (b_packet[idx + 1] & 0x0F)        # 4 uimsbf
+        content_nibble_level_1 = (b_packet[idx] >> 4)   # 4 uimsbf
+        content_nibble_level_2 = (b_packet[idx] & 0x0F) # 4 uimsbf
+        user_nibble_1 = (b_packet[idx + 1] >> 4)        # 4 uimsbf
+        user_nibble_2 = (b_packet[idx + 1] & 0x0F)      # 4 uimsbf
         content = ContentType(content_nibble_level_1, content_nibble_level_2,
                 user_nibble_1, user_nibble_2)
         content_list.append(content)

@@ -228,8 +228,8 @@ class ContentType:
         self.user_nibble_2 = user_nibble_2
     def __str__(self):
         return (
-        '    content_nibble_level_1=%s\n'
-        '    content_nibble_level_2=%s\n'
+        '    content_nibble_level_1=0x%X\n'
+        '    content_nibble_level_2=0x%X\n'
         '    user_nibble_1=0x%X\n'
         '    user_nibble_2=0x%X\n') % (
                 self.content_nibble_level_1,

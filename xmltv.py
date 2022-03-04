@@ -87,7 +87,7 @@ def create_programme(channel_name, events, b_type, output_eid):
 
         sed_text = ''
         if event.desc_short.text is not None:
-            sed_text = get_text(event.desc_short.text).strip()
+            sed_text = get_text(event.desc_short.text.strip())
         if sed_text != '':
             attr = {'lang':'ja'}
             sed_el = ET.Element('desc', attr)
@@ -106,19 +106,27 @@ def create_programme(channel_name, events, b_type, output_eid):
             eed_el.text = '[EED] ' + eed_text.rstrip()
             programme_el.append(eed_el)
 
+        # this element is not compliant with xmltv.dtd (but very informative)
         if event.desc_content != None:
-            category_list = []
             for ct in event.desc_content.content_type_array:
-                category_text = get_text(ct.content_nibble_level_1)
-                if category_text not in category_list and category_text != 'UNKNOWN':
-                    category_list.append(category_text)
-                category_text = get_text(ct.content_nibble_level_2)
-                if category_text not in category_list and category_text != 'UNKNOWN':
-                    category_list.append(category_text)
-            for category_text in category_list:
-                category_el_1 = ET.Element('category', attr)
-                category_el_1.text = category_text
-                programme_el.append(category_el_1)
+                content_nibble_set = (ct.content_nibble_level_1 << 4) + ct.content_nibble_level_2
+                user_nibble_set = (ct.user_nibble_1 << 4) + ct.user_nibble_2
+                content_nibble_level_1_text = 'UNKNOWN'
+                content_nibble_level_2_text = 'UNKNOWN'
+                try:
+                    c_map = CONTENT_TYPE[ct.content_nibble_level_1]
+                    content_nibble_level_1_text = c_map[0]
+                    content_nibble_level_2_text = c_map[1][ct.content_nibble_level_2]
+                except KeyError:
+                    pass
+                attr = {'content-nibble-set':str(content_nibble_set),
+                        'user-nibble-set':str(user_nibble_set),
+                        'lang':'ja'}
+                category_text = get_text(content_nibble_level_1_text)
+                category_text += ' > ' + get_text(content_nibble_level_2_text)
+                desc_content_el = ET.Element('category', attr)
+                desc_content_el.text = category_text
+                programme_el.append(desc_content_el)
 
         # this element is not compliant with xmltv.dtd (but very informative)
         if output_eid == True:
