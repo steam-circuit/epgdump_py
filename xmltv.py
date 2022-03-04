@@ -2,11 +2,21 @@
 
 from datetime import datetime
 
+import re
+
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as MD
 
 from constant import *
 
+
+def regain_width(text):
+    if text is None:
+        return
+    text = re.sub(r'　([\x20-\x7e])', " \\1", text)
+    text = re.sub(r'([^\x20-\x7e\uFF61-\uFF9F])!', "\\1！", text)
+    text = re.sub(r'([^\x20-\x7e\uFF61-\uFF9F])\?', "\\1？", text)
+    return text
 
 def get_text(text):
     if text != None:
@@ -80,30 +90,31 @@ def create_programme(channel_name, events, b_type, output_eid):
         length_el.text = str(event.duration.seconds // 60)
         programme_el.append(length_el)
 
+        title_text = regain_width(event.desc_short.event_name)
         attr = {'lang':'ja'}
         title_el = ET.Element('title', attr)
-        title_el.text = get_text(event.desc_short.event_name)
+        title_el.text = get_text(title_text)
         programme_el.append(title_el)
 
         sed_text = ''
         if event.desc_short.text is not None:
-            sed_text = get_text(event.desc_short.text.strip())
+            sed_text = regain_width(event.desc_short.text.strip())
         if sed_text != '':
             attr = {'lang':'ja'}
             sed_el = ET.Element('desc', attr)
-            sed_el.text = '[SED] ' + sed_text
+            sed_el.text = '[SED] ' + get_text(sed_text)
             programme_el.append(sed_el)
 
         eed_text = ''
         if event.desc_extended is not None:
             for (k,v) in event.desc_extended.items():
                 item_name = k.strip()
-                item_value = v.strip()
-                eed_text += '《' + get_text(item_name) + '》\n' + get_text(item_value) + '\n\n'
+                item_value = regain_width(v.strip())
+                eed_text += '《' + item_name + '》\n' + item_value + '\n\n'
         if eed_text != '':
             attr = {'lang':'ja'}
             eed_el = ET.Element('desc', attr)
-            eed_el.text = '[EED] ' + eed_text.rstrip()
+            eed_el.text = '[EED] ' + get_text(eed_text.rstrip())
             programme_el.append(eed_el)
 
         # this element is not compliant with xmltv.dtd (but very informative)
