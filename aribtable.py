@@ -190,7 +190,7 @@ class Event:
         self.descriptors = []
         self.desc_short = None
         self.desc_content = None
-        self.desc_extend = None
+        self.desc_extended = None
     def __str__(self):
         return (
         '  service_id=%i\n'

@@ -186,12 +186,11 @@ def parseShortEventDescriptor(idx, event, t_packet, b_packet):
             chr(b_packet[idx + 4]))       # 24 bslbf
     event_name_length = b_packet[idx + 5] # 8 uimsbf
     arib = AribString(b_packet[idx + 6:idx + 6 + event_name_length])
-    (event_name,symbol) = arib.convert_utf_split()
+    event_name = arib.convert_utf()
     idx = idx + 6 + event_name_length
     text_length = b_packet[idx]           # 8 uimsbf
     arib = AribString(b_packet[idx + 1:idx + 1 + text_length])
     text = arib.convert_utf()
-    text = symbol + "\n" + text
     desc = ShortEventDescriptor(descriptor_tag, descriptor_length,
             ISO_639_language_code, event_name_length, event_name,
             text_length, text)
@@ -336,10 +335,10 @@ def add_event(b_type, event_map, t_packet):
             elif tag == TAG_CD:
                 master.desc_content = desc
             elif tag == TAG_EED:
-                if master.desc_extend == None:
-                    master.desc_extend = desc.items
+                if master.desc_extended == None:
+                    master.desc_extended = desc.items
                 else:
-                    master.desc_extend.extend(desc.items)
+                    master.desc_extended.extend(desc.items)
 
 def fix_events(events):
     event_list = []
@@ -348,8 +347,8 @@ def fix_events(events):
         item_map = {}
         if event.desc_short == None:
             continue
-        if event.desc_extend != None:
-            for item in event.desc_extend:
+        if event.desc_extended != None:
+            for item in event.desc_extended:
                 if item.item_description_length == 0:
                     item_list[-1].item.extend(item.item)
                     item_list[-1].item_length += item.item_length
@@ -362,7 +361,7 @@ def fix_events(events):
                 item.item = arib.convert_utf()
             for item in item_list:
                 item_map[item.item_description] = item.item
-            event.desc_extend = item_map
+            event.desc_extended = item_map
         event_list.append(event)
     return event_list
 

@@ -42,7 +42,7 @@ except (IndexError, getopt.GetoptError):
 channel_name = None
 input_file = None
 output_file = None
-pretty_print = False
+pretty_print = None
 debug = False
 b_type = TYPE_DIGITAL
 transport_stream_id = None
@@ -65,7 +65,7 @@ for o,a in opts:
     elif o in ('-d', '--debug'):
         debug = True
     elif o in ('-f', '--format'):
-        pretty_print = True
+        pretty_print = PPRINT_INDENT_PREFIX
     elif o in ('-i', '--input'):
         input_file = a
     elif o in ('-o', '--output'):

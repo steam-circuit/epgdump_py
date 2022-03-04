@@ -15,7 +15,13 @@ TAG_EED = 0x4E # Extended event descriptor
 TAG_CD  = 0x54 # Content descriptor
 TAG_SD  = 0x48 # Service descriptor
 
+#ACCEPT_SERVICE_TYPE = (0x01, 0x02, 0xA1, 0xA2)
 ACCEPT_SERVICE_TYPE = (0x01, 0x02)
+
+GENERATOR_INFO_NAME = 'epgdump_py+/0.99'
+GENERATOR_INFO_URL = 'https://github.com/steam-circuit/epgdump_py/tree/devel'
+TIMESTAMP_FORMAT = '%Y%m%d%H%M%S +0900'
+PPRINT_INDENT_PREFIX = '  '
 
 CONTENT_TYPE = {
         0x0:('ニュース／報道',

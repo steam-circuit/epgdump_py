@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 import xml.etree.ElementTree as ET
-import xml.dom.minidom
+import xml.dom.minidom as MD
 
 from constant import *
 
@@ -18,9 +20,10 @@ def get_text(text):
 def create_xml(b_type, channel_name, service, events, filename, pretty_print, output_eid):
     channel_el_list = create_channel(b_type, channel_name, service)
     programme_el_list = create_programme(channel_name, events, b_type, output_eid)
-    attr = {
-            'generator-info-name':'epgdump_py',
-            'generator-info-url':'http://localhost'}
+    create_datetime = datetime.now().strftime(TIMESTAMP_FORMAT)
+    attr = {'date':create_datetime,
+            'generator-info-name':GENERATOR_INFO_NAME,
+            'generator-info-url':GENERATOR_INFO_URL}
     tv_el = ET.Element('tv', attr)
 
     for el in channel_el_list:
@@ -29,12 +32,12 @@ def create_xml(b_type, channel_name, service, events, filename, pretty_print, ou
         tv_el.append(el)
 
     fd = open(filename, 'wb')
-    if pretty_print:
-        xml_str = ET.ElementTree.tostring(tv_el)
-        xml_str = parseString(xml_str).toprettyxml(indent='  ', encoding='utf-8')
+    if pretty_print is not None and pretty_print != '':
+        xml_str = ET.tostring(tv_el)
+        xml_str = MD.parseString(xml_str).toprettyxml(indent=pretty_print, encoding='utf-8')
         fd.write(xml_str)
     else:
-        ET.ElementTree(tv_el).write(fd, 'utf-8', ' ')
+        ET.ElementTree(tv_el).write(fd, encoding='utf-8')
     fd.close()
 
 def create_channel(b_type, channel_name, service):
@@ -64,29 +67,44 @@ def create_channel(b_type, channel_name, service):
     return el_list
 
 def create_programme(channel_name, events, b_type, output_eid):
-    t_format = '%Y%m%d%H%M%S +0900'
     el_list = []
     for event in events:
-        ch = b_type + str(event.service_id) if channel_name == None else channel_name
-        start = event.start_time.strftime(t_format)
-        stop = (event.start_time + event.duration).strftime(t_format)
-        attr = {'start':start, 'stop':stop, 'channel':ch}
+        channel_id = b_type + str(event.service_id)
+        start = event.start_time.strftime(TIMESTAMP_FORMAT)
+        stop = (event.start_time + event.duration).strftime(TIMESTAMP_FORMAT)
+        attr = {'start':start, 'stop':stop, 'channel':channel_id}
         programme_el = ET.Element('programme', attr)
 
-        attr = {'lang':'ja'}
+        attr = {'units':'minutes'}
+        length_el = ET.Element('length', attr)
+        length_el.text = str(event.duration.seconds // 60)
+        programme_el.append(length_el)
 
+        attr = {'lang':'ja'}
         title_el = ET.Element('title', attr)
         title_el.text = get_text(event.desc_short.event_name)
         programme_el.append(title_el)
 
-        eed_text = ''
-        if event.desc_extend != None:
-            for (k,v) in event.desc_extend.items():
-                eed_text += '\n' + get_text(k) + '\n' + get_text(v) + '\n'
+        sed_text = ''
+        if event.desc_short.text is not None:
+            sed_text = get_text(event.desc_short.text).strip()
+        if sed_text != '':
+            attr = {'lang':'ja'}
+            sed_el = ET.Element('desc', attr)
+            sed_el.text = '[SED] ' + sed_text
+            programme_el.append(sed_el)
 
-        desc_el = ET.Element('desc', attr)
-        desc_el.text = get_text(event.desc_short.text) + '\n' + eed_text
-        programme_el.append(desc_el)
+        eed_text = ''
+        if event.desc_extended is not None:
+            for (k,v) in event.desc_extended.items():
+                item_name = k.strip()
+                item_value = v.strip()
+                eed_text += '《' + get_text(item_name) + '》\n' + get_text(item_value) + '\n\n'
+        if eed_text != '':
+            attr = {'lang':'ja'}
+            eed_el = ET.Element('desc', attr)
+            eed_el.text = '[EED] ' + eed_text.rstrip()
+            programme_el.append(eed_el)
 
         if event.desc_content != None:
             category_list = []
@@ -101,6 +119,8 @@ def create_programme(channel_name, events, b_type, output_eid):
                 category_el_1 = ET.Element('category', attr)
                 category_el_1.text = category_text
                 programme_el.append(category_el_1)
+
+        # this element is not compliant with xmltv.dtd (but very informative)
         if output_eid == True:
             el = ET.Element('transport-stream-id')
             el.text = str(event.transport_stream_id)
