@@ -102,20 +102,8 @@ def create_programme(channel_name, events, b_type, output_extra_info):
         if sed_text != '':
             attr = {'lang':'ja'}
             sed_el = ET.Element('desc', attr)
-            sed_el.text = '[SED] ' + get_text(sed_text)
+            sed_el.text = get_text(sed_text)
             programme_el.append(sed_el)
-
-        eed_text = ''
-        if event.desc_extended is not None:
-            for (k,v) in event.desc_extended.items():
-                item_name = k.strip()
-                item_value = regain_width(v.strip())
-                eed_text += '《' + item_name + '》\n' + item_value + '\n\n'
-        if eed_text != '':
-            attr = {'lang':'ja'}
-            eed_el = ET.Element('desc', attr)
-            eed_el.text = '[EED] ' + get_text(eed_text.rstrip())
-            programme_el.append(eed_el)
 
         # this element is not compliant with xmltv.dtd (but very informative)
         if event.desc_content != None:
@@ -154,6 +142,19 @@ def create_programme(channel_name, events, b_type, output_extra_info):
             el = ET.Element('event-id')
             el.text = str(event.event_id)
             extra_info_el.append(el)
+
+            eed_text = ''
+            if event.desc_extended is not None:
+                for (k,v) in event.desc_extended.items():
+                    item_name = k.strip()
+                    item_value = regain_width(v.strip())
+                    eed_text += '《' + item_name + '》\n' + item_value + '\n\n'
+            if eed_text != '':
+                attr = {'lang':'ja'}
+                el = ET.Element('extended-event-descriptor', attr)
+                el.text = get_text(eed_text.rstrip())
+                extra_info_el.append(el)
+
             programme_el.append(extra_info_el)
 
         el_list.append(programme_el)
