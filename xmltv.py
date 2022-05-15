@@ -27,9 +27,9 @@ def get_text(text):
     else:
         return ""
 
-def create_xml(b_type, channel_name, service, events, filename, pretty_print, output_eid):
+def create_xml(b_type, channel_name, service, events, filename, pretty_print, output_extra_info):
     channel_el_list = create_channel(b_type, channel_name, service)
-    programme_el_list = create_programme(channel_name, events, b_type, output_eid)
+    programme_el_list = create_programme(channel_name, events, b_type, output_extra_info)
     create_datetime = datetime.now().strftime(TIMESTAMP_FORMAT)
     attr = {'date':create_datetime,
             'generator-info-name':GENERATOR_INFO_NAME,
@@ -76,7 +76,7 @@ def create_channel(b_type, channel_name, service):
 
     return el_list
 
-def create_programme(channel_name, events, b_type, output_eid):
+def create_programme(channel_name, events, b_type, output_extra_info):
     el_list = []
     for event in events:
         channel_id = b_type + str(event.service_id)
@@ -140,16 +140,21 @@ def create_programme(channel_name, events, b_type, output_eid):
                 programme_el.append(desc_content_el)
 
         # this element is not compliant with xmltv.dtd (but very informative)
-        if output_eid == True:
+        if output_extra_info == True:
+            extra_info_el = ET.Element('extra-info')
             el = ET.Element('transport-stream-id')
             el.text = str(event.transport_stream_id)
-            programme_el.append(el)
+            extra_info_el.append(el)
+            el = ET.Element('original-network-id')
+            el.text = str(event.original_network_id)
+            extra_info_el.append(el)
             el = ET.Element('service-id')
             el.text = str(event.service_id)
-            programme_el.append(el)
+            extra_info_el.append(el)
             el = ET.Element('event-id')
             el.text = str(event.event_id)
-            programme_el.append(el)
+            extra_info_el.append(el)
+            programme_el.append(extra_info_el)
 
         el_list.append(programme_el)
 

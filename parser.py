@@ -284,7 +284,8 @@ def parseEvents(t_packet, b_packet):
         running_status = (b_packet[idx + 10] >> 5)            # 3   uimsbf
         free_CA_mode = ((b_packet[idx + 10] >> 4) & 0x01)     # 1   bslbf
         descriptors_loop_length = ((b_packet[idx + 10] & 0x0F) << 8) + b_packet[idx + 11] # 12  uimsbf
-        event = Event(t_packet.eit.transport_stream_id, t_packet.eit.service_id, event_id,
+        event = Event(t_packet.eit.original_network_id,
+                t_packet.eit.transport_stream_id, t_packet.eit.service_id, event_id,
                 start_time, duration, running_status, free_CA_mode, descriptors_loop_length)
         parseDescriptors(idx + 12, event, t_packet, b_packet)
         t_packet.eit.events.append(event)

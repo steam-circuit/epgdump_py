@@ -27,14 +27,14 @@ def usage():
   -i, --input         specify ts file
   -o, --output        specify xml file
   -p, --print-time    print start time, and end time of specified id
-  -e, --event-id      output transport_stream_id, servece_id and event_id
+  -e, --extra-info    output transport_stream_id, servece_id and event_id (not compliant with xmltv.dtd)
   -m, --max-packets   maximum ts packets of read
 ''', file=sys.stderr)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'hbctn:dfi:o:p:em:', [
         'help', 'bs', 'cs', 'tb', 'channel-name=',
-        'debug', 'format', 'input=', 'output=', 'print-time=', 'event-id', 'max-packets'])
+        'debug', 'format', 'input=', 'output=', 'print-time=', 'extra-info', 'max-packets'])
 except (IndexError, getopt.GetoptError):
     usage()
     sys.exit(1)
@@ -48,7 +48,7 @@ b_type = TYPE_DIGITAL
 transport_stream_id = None
 service_id = None
 event_id = None
-output_eid = False
+output_extra_info = False
 max_packets = None
 for o,a in opts:
     if o in ('-h', '--help'):
@@ -75,8 +75,8 @@ for o,a in opts:
         transport_stream_id = int(arr[0])
         service_id = int(arr[1])
         event_id = int(arr[2])
-    elif o in ('-e', '--event-id'):
-        output_eid = True
+    elif o in ('-e', '--extra-info'):
+        output_extra_info = True
     elif o in ('-m', '--max-packets'):
         max_packets = int(a)
 
@@ -92,7 +92,7 @@ tsfile = TransportStreamFile(input_file, 'rb')
 (service, events) = parse_ts(b_type, tsfile, max_packets, debug)
 tsfile.close()
 if service_id == None:
-    create_xml(b_type, channel_name, service, events, output_file, pretty_print, output_eid)
+    create_xml(b_type, channel_name, service, events, output_file, pretty_print, output_extra_info)
 else:
     start_time = None
     end_time = None
