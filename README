@@ -1,13 +1,23 @@
 python epgdump.py
 
 USAGE: epgdump.py -n CHANNEL_NAME -i INPUT_FILE -o OUTPUT_FILE
+       epgdump.py -b -i INPUT_FILE -o OUTPUT_FILE
+       epgdump.py -c -i INPUT_FILE -o OUTPUT_FILE
+       epgdump.py -t -i INPUT_FILE -o OUTPUT_FILE
+       epgdump.py [-b|-c|-t] -p TRANSPORT_STREAM_ID:SERVICE_ID:EVENT_ID -i INPUT_FILE
   -h, --help          print help message
   -b, --bs            input file is BS channel
   -c, --cs            input file is CS channel
-  -n, --channel-name  specify DTB channel identifier (e.g. ON TV JAPAN code)
-  -f, --format        format xml
+  -t, --tb            input file is TB channel
+  -n, --channel-name  specify channel identifier (e.g. ON TV JAPAN code)
+  -f, --format        output formated xml with pprint (default: no white space and no indent)
+  -e, --extra-info    include extra EIT data below (but not compliant with xmltv.dtd)
+                      transport_stream_id, servece_id, event_id and version_number
+  -d, --debug         parse all ts packet
   -i, --input         specify ts file
   -o, --output        specify xml file
+  -p, --print-time    print start and end time (epoch time) of specified ids
+  -m, --max-packets   maximum ts packets of read
 
 --formatオプションを使用するよりも、xmlstarletコマンドを使用し
 た方がよい。
