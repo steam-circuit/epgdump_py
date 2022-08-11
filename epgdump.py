@@ -34,7 +34,7 @@ def usage():
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'hbctn:dfi:o:p:em:', [
         'help', 'bs', 'cs', 'tb', 'channel-name=',
-        'debug', 'format', 'input=', 'output=', 'print-time=', 'extra-info', 'max-packets'])
+        'debug', 'format', 'input=', 'output=', 'print-time=', 'extra-info', 'max-packets='])
 except (IndexError, getopt.GetoptError):
     usage()
     sys.exit(1)
