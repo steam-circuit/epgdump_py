@@ -142,6 +142,9 @@ def create_programme(channel_name, events, b_type, output_extra_info):
             el = ET.Element('event-id')
             el.text = str(event.event_id)
             extra_info_el.append(el)
+            el = ET.Element('version-number')
+            el.text = str(event.version_number)
+            extra_info_el.append(el)
 
             eed_text = ''
             if event.desc_extended is not None:

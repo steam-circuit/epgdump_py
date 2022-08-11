@@ -22,19 +22,20 @@ def usage():
   -c, --cs            input file is CS channel
   -t, --tb            input file is TB channel
   -n, --channel-name  specify channel identifier (e.g. ON TV JAPAN code)
+  -f, --format        output formated xml with pprint (default: no white space and no indent)
+  -e, --extra-info    include extra EIT data below (but not compliant with xmltv.dtd)
+                      transport_stream_id, servece_id, event_id and version_number
   -d, --debug         parse all ts packet
-  -f, --format        output formated xml with pprint (default: no space and no indent)
   -i, --input         specify ts file
   -o, --output        specify xml file
-  -p, --print-time    print start time, and end time of specified id
-  -e, --extra-info    output transport_stream_id, servece_id and event_id (not compliant with xmltv.dtd)
+  -p, --print-time    print start and end time (epoch time) of specified ids
   -m, --max-packets   maximum ts packets of read
 ''', file=sys.stderr)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'hbctn:dfi:o:p:em:', [
+    opts, args = getopt.getopt(sys.argv[1:], 'hbctn:fedi:o:p:m:', [
         'help', 'bs', 'cs', 'tb', 'channel-name=',
-        'debug', 'format', 'input=', 'output=', 'print-time=', 'extra-info', 'max-packets='])
+        'format', 'extra-info', 'debug', 'input=', 'output=', 'print-time=', 'max-packets='])
 except (IndexError, getopt.GetoptError):
     usage()
     sys.exit(1)
@@ -62,10 +63,12 @@ for o,a in opts:
         b_type = TYPE_TB
     elif o in ('-n', '--channel-name'):
         channel_name = a
-    elif o in ('-d', '--debug'):
-        debug = True
     elif o in ('-f', '--format'):
         pretty_print = PPRINT_INDENT_PREFIX
+    elif o in ('-e', '--extra-info'):
+        output_extra_info = True
+    elif o in ('-d', '--debug'):
+        debug = True
     elif o in ('-i', '--input'):
         input_file = a
     elif o in ('-o', '--output'):
@@ -75,8 +78,6 @@ for o,a in opts:
         transport_stream_id = int(arr[0])
         service_id = int(arr[1])
         event_id = int(arr[2])
-    elif o in ('-e', '--extra-info'):
-        output_extra_info = True
     elif o in ('-m', '--max-packets'):
         max_packets = int(a)
 

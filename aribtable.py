@@ -178,12 +178,14 @@ class EventInfomationTable:
 
 class Event:
     def __init__(self, original_network_id,
-            transport_stream_id, service_id, event_id, start_time, duration,
+            transport_stream_id, service_id, event_id, version_number,
+            start_time, duration,
             running_status, free_CA_mode, descriptors_loop_length):
         self.original_network_id = original_network_id
         self.transport_stream_id = transport_stream_id
         self.service_id = service_id
         self.event_id = event_id
+        self.version_number = version_number
         self.start_time = start_time
         self.duration = duration
         self.running_status = running_status
@@ -199,6 +201,7 @@ class Event:
         '  transport_stream_id=%i\n'
         '  service_id=%i\n'
         '  event_id=%04X\n'
+        '  version_number=%i\n'
         '  start_time=%s\n'
         '  duration=%s\n'
         '  running_status=%02X\n'
@@ -208,6 +211,7 @@ class Event:
             self.transport_stream_id,
             self.service_id,
             self.event_id,
+            self.version_number,
             self.start_time,
             self.duration,
             self.running_status,
