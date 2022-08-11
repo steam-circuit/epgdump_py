@@ -1,3 +1,13 @@
+ブランチ
+• 2to3 (https://github.com/steam-circuit/epgdump_py/tree/2to3)
+ ⁃ Python2/3の非互換に係る修正（リポジトリの既定ブランチ）
+• devel (https://github.com/steam-circuit/epgdump_py/tree/devel)
+ ⁃ 機能の修正・追加をしたもの（XMLTVには非準拠）
+• main (https://github.com/steam-circuit/epgdump_py/tree/main)
+ ⁃ オリジナルをas-isでフォーク
+
+以下、オリジナルのREADME
+========================================================================================================================
 python epgdump.py
 
 USAGE: epgdump_py -c CHANNEL_ID -i INPUT_FILE -o OUTPUT_FILE
