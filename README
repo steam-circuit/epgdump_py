@@ -4,7 +4,7 @@
 • devel (https://github.com/steam-circuit/epgdump_py/tree/devel)
  ⁃ 機能の修正・追加をしたもの（XMLTVには非準拠）
 • main (https://github.com/steam-circuit/epgdump_py/tree/main)
- ⁃ オリジナルをas-isでフォーク
+ ⁃ オリジナルのmasterをas-isでフォーク
 • その他
  ⁃ オリジナルに含まれていたもの
 
