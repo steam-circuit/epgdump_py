@@ -80,6 +80,17 @@ for o,a in opts:
         event_id = int(arr[2])
     elif o in ('-m', '--max-packets'):
         max_packets = int(a)
+else:
+        assert False, "unhandled option"
+
+if len(args) > 0:
+    for arg in args:
+        if input_file is None and re.search(r'(?i)\.(m2?)?ts$', arg):
+            input_file = arg
+            print('input (TS) : {}'.format(input_file), file=sys.stderr)
+        if output_file is None and re.search(r'(?i)\.xml$', arg):
+            output_file = arg
+            print('output(XML): {}'.format(output_file), file=sys.stderr)
 
 if service_id == None and (
         (b_type == TYPE_DIGITAL and channel_name == None) or input_file == None or output_file == None):
