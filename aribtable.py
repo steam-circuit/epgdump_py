@@ -177,12 +177,14 @@ class EventInfomationTable:
             self.last_table_id)
 
 class Event:
-    def __init__(self, pid, table_id, version_number,
+    def __init__(self, pid, table_id, version_number, section_number, last_section_number,
             original_network_id, transport_stream_id, service_id, event_id, start_time, duration,
             running_status, free_CA_mode, descriptors_loop_length):
         self.pid = pid
         self.table_id = table_id
         self.version_number = version_number
+        self.section_number = section_number
+        self.last_section_number = last_section_number
         self.original_network_id = original_network_id
         self.transport_stream_id = transport_stream_id
         self.service_id = service_id
@@ -201,6 +203,8 @@ class Event:
         '  pid=%04X\n'
         '  table_id=%02X\n'
         '  version_number=%i\n'
+        '  section_number=%i\n'
+        '  last_section_number=%i\n'
         '  original_network_id=%i\n'
         '  transport_stream_id=%i\n'
         '  service_id=%i\n'
@@ -213,6 +217,8 @@ class Event:
             self.pid,
             self.table_id,
             self.version_number,
+            self.section_number,
+            self.last_section_number,
             self.original_network_id,
             self.transport_stream_id,
             self.service_id,

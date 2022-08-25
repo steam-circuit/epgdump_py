@@ -139,6 +139,10 @@ def create_programme(channel_name, events, b_type, output_extra_info):
             el = ET.Element('version-number')
             el.text = str(event.version_number)
             extra_info_el.append(el)
+            attr = {'last-section-number':str(event.last_section_number)}
+            el = ET.Element('section-number', attr)
+            el.text = str(event.section_number)
+            extra_info_el.append(el)
             el = ET.Element('original-network-id')
             el.text = str(event.original_network_id)
             extra_info_el.append(el)

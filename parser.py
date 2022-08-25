@@ -285,6 +285,7 @@ def parseEvents(t_packet, b_packet):
         free_CA_mode = ((b_packet[idx + 10] >> 4) & 0x01)     # 1   bslbf
         descriptors_loop_length = ((b_packet[idx + 10] & 0x0F) << 8) + b_packet[idx + 11] # 12  uimsbf
         event = Event(t_packet.header.pid, t_packet.eit.table_id, t_packet.eit.version_number,
+                t_packet.eit.section_number, t_packet.eit.last_section_number,
                 t_packet.eit.original_network_id,
                 t_packet.eit.transport_stream_id, t_packet.eit.service_id, event_id, start_time, duration,
                 running_status, free_CA_mode, descriptors_loop_length)
